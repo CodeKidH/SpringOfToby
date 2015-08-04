@@ -1,5 +1,6 @@
 <html>
 <body>
+<h1>Chapter1</h1>
 <h2>STUDPID DAO</h2>
 <a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[User]':'[User]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>user</a><div style="DISPLAY: none">package toby;
 <pre>
@@ -90,8 +91,8 @@ public class UserDao {
 		
 		User user = new User();
 		user.setId("white");
-		user.setName("����");
-		user.setPassword("����");
+		user.setName("jh");
+		user.setPassword("1111");
 		
 		dao.add(user);
 		
