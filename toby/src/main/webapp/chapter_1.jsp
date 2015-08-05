@@ -1,9 +1,9 @@
 <html>
-<body>
-<h1>Chapter1</h1>
-<h2>STUDPID DAO</h2>
+<body style="background:#041303">
+<h1 style="color:#FCF9F9">Chapter1</h1>
+<h2 style="color:#FCF9F9">1.STUDPID DAO</h2>
 <a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[User]':'[User]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>user</a><div style="DISPLAY: none">package toby;
-<pre>
+<pre style="color:#A7B32A">
 public class User {
 	
 	String id;
@@ -36,7 +36,7 @@ public class User {
 <br>
 
 <a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[UserDao]':'[UserDao]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>userdao</a><div style="DISPLAY: none">package toby;
-<pre>
+<pre style="color:#A7B32A">
 package toby;
 
 import java.sql.Connection;
@@ -50,18 +50,18 @@ public class UserDao {
 	
 	public void add(User user)throws ClassNotFoundException, SQLException{
 		//Class.forName("com.mysql.jdbc.Driver"); -mysql
-		Class.forName("oracle.jdbc.driver.OracleDriver");
+		Class.forName("oracle.jdbc.driver.OracleDriver");------------------------> first concerns
 		//Connection c = DriverManager.getConnection("jdbc:mysql://localhost/spring","spring","book");
 		
 		Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
-		PreparedStatement ps =c.prepareStatement("insert into users(id,name,password) values(?,?,?)");
+		PreparedStatement ps =c.prepareStatement("insert into users(id,name,password) values(?,?,?)"); --------->second concerns
 		ps.setString(1, user.getId());
 		ps.setString(2, user.getName());
 		ps.setString(3, user.getPassword());
 		
 		ps.executeUpdate();
 		
-		ps.close();
+		ps.close(); ---------------------------> third concerns
 		c.close();
 	}
 	
@@ -103,8 +103,302 @@ public class UserDao {
 }
 </pre>
 </div>
+
+
 <!-- <a onclick="this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';"href="javascript:void(0)">open</a><div style="DISPLAY: none">contents<a onclick="this.parentNode.style.display='none';" href="javascript:void(0)">close</a></div> -->
+<H2 style="color:#FCF9F9">2.Let's separate concerns</H2>
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[UserDao]':'[UserDao]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>userdao</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+package toby;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class UserDao {
 	
+	
+	public void add(User user)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver"); -oracle
+		Connection c = getConnection();
+		
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		PreparedStatement ps =c.prepareStatement("insert into dao(id,name,password) values(?,?,?)");
+		ps.setString(1, user.getId());
+		ps.setString(2, user.getName());
+		ps.setString(3, user.getPassword());
+		
+		ps.executeUpdate();
+		
+		ps.close();
+		c.close();
+	}
+	
+	public User get(String id)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver");
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		Connection c = getConnection();
+		PreparedStatement ps = c.prepareStatement("select * from dao where id = ?");
+		
+		ps.setString(1, id);
+		
+		ResultSet rs = ps.executeQuery();
+		rs.next();
+		User user = new User();
+		user.setId(rs.getString("id"));
+		user.setName(rs.getString("name"));
+		user.setPassword("password");
+		
+		rs.close();
+		ps.close();
+		c.close();
+		
+		return user;
+	}
+	========================================================================================
+	private Connection getConnection() throws ClassNotFoundException, SQLException{
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection c = DriverManager.getConnection("jdbc:mysql://localhost/toby","root","1111");
+		return c;
+	}
+	=========================================Refactory=======================================
+	
+	public static void main(String[]args)throws ClassNotFoundException, SQLException{
+		UserDao dao = new UserDao();
+		
+		User user = new User();
+		user.setId("wh");
+		user.setName("JH");
+		user.setPassword("JH");
+		
+		dao.add(user);
+		
+		User user2 = dao.get(user.getId());
+		
+		System.out.println(user2.getName());
+	}
+}
+</font>
+</pre>
+</div>
+
+<H2 style="color:#FCF9F9">3.extends DAO by using extends</H2>
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[UserDao]':'[UserDao]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>userdao</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+====================================
+we use a template method pattern or factory pattern
+===================================
+
+package toby;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+
+public abstract class UserDao { ---------------------------->>abstract
+	
+	
+	public void add(User user)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver"); -oracle
+		Connection c = getConnection();
+		
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		PreparedStatement ps =c.prepareStatement("insert into dao(id,name,password) values(?,?,?)");
+		ps.setString(1, user.getId());
+		ps.setString(2, user.getName());
+		ps.setString(3, user.getPassword());
+		
+		ps.executeUpdate();
+		
+		ps.close();
+		c.close();
+	}
+	
+	public User get(String id)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver");
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		Connection c = getConnection();
+		PreparedStatement ps = c.prepareStatement("select * from dao where id = ?");
+		
+		ps.setString(1, id);
+		
+		ResultSet rs = ps.executeQuery();
+		rs.next();
+		User user = new User();
+		user.setId(rs.getString("id"));
+		user.setName(rs.getString("name"));
+		user.setPassword("password");
+		
+		rs.close();
+		ps.close();
+		c.close();
+		
+		return user;
+	}
+=====================================================================================	
+	public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
+======================================================================================
+	
+	
+	public static void main(String[]args)throws ClassNotFoundException, SQLException{
+		UserDao dao = new DUserDao(); ----------->>>
+		
+		User user = new User();
+		user.setId("asd");
+		user.setName("JH");
+		user.setPassword("JH");
+		
+		dao.add(user);
+		
+		User user2 = dao.get(user.getId());
+		
+		System.out.println(user2.getName());
+	}
+}
+
+</pre>
+</div>
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[NUserDao]':'[NUserDao]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>NUserDao</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+package toby;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class NUserDao extends UserDao{
+	public Connection getConnection()throws ClassNotFoundException, SQLException{
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection c = DriverManager.getConnection("jdbc:mysql://localhost/toby","root","1111");
+		return c;
+	}
+}
+
+</pre>
+</div>
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[DUserDao]':'[DUserDao]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>DUserDao</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+package toby;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class DUserDao extends UserDao{
+	public Connection getConnection()throws ClassNotFoundException, SQLException{
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection c = DriverManager.getConnection("jdbc:mysql://localhost/toby","root","1111");
+		return c;
+	}
+}
+
+</pre>
+</div>
+
+<H2 style="color:#FCF9F9">4.extends DAO by using Class</H2>
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[UserDao]':'[UserDao]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>UserDao</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+package toby;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+
+public class UserDao {
+	
+	============================================================
+	private SimpleConnectionMaker simpleConnectionMaker;
+	
+	public UserDao(){
+		simpleConnectionMaker = new SimpleConnectionMaker();
+	}
+	===============================================================
+	public void add(User user)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver"); -oracle
+		Connection c = simpleConnectionMaker.getConnection(); ---->>>>>>>>>>>>change
+		
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		PreparedStatement ps =c.prepareStatement("insert into dao(id,name,password) values(?,?,?)");
+		ps.setString(1, user.getId());
+		ps.setString(2, user.getName());
+		ps.setString(3, user.getPassword());
+		
+		ps.executeUpdate();
+		
+		ps.close();
+		c.close();
+	}
+	
+	public User get(String id)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver");
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		Connection c = simpleConnectionMaker.getConnection();
+		PreparedStatement ps = c.prepareStatement("select * from dao where id = ?");
+		
+		ps.setString(1, id);
+		
+		ResultSet rs = ps.executeQuery();
+		rs.next();
+		User user = new User();
+		user.setId(rs.getString("id"));
+		user.setName(rs.getString("name"));
+		user.setPassword("password");
+		
+		rs.close();
+		ps.close();
+		c.close();
+		
+		return user;
+	}
+	
+	public static void main(String[]args)throws ClassNotFoundException, SQLException{
+		UserDao dao = new UserDao();
+		
+		User user = new User();
+		user.setId("asd");
+		user.setName("JH");
+		user.setPassword("JH");
+		
+		dao.add(user);
+		
+		User user2 = dao.get(user.getId());
+		
+		System.out.println(user2.getName());
+	}
+}
+
+
+</pre>
+</div>
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[SimpleConnectionMaker]':'[SimpleConnectionMaker]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>SimpleConnectionMaker</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+package toby;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class SimpleConnectionMaker {
+	public Connection getConnection() throws ClassNotFoundException,SQLException{
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection c = DriverManager.getConnection("jdbc:mysql://localhost/toby","root","1111");
+		return c;
+	}
+}
+</font>
+</pre>
+</div>
 </body>
 </html>
 
