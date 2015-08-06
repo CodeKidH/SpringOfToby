@@ -1745,6 +1745,140 @@ public class DConnectionMaker implements ConnectionMaker{
 </pre>
 </div>
 
+<H2 style="color:#FCF9F9">13.Change a DBConnection from java to xml, use a dataSource </H2>
+<H3 style="color:#FCF9F9">< dataSource is interface fixed ></H3>
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[UserDao]':'[UserDao]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>UserDao</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+package toby;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
+
+public class UserDao {
+	
+	======================================================================
+	private DataSource dataSource;
+	
+	public void setDataSource(DataSource dataSource){
+		this.dataSource = dataSource;
+	}
+	======================================================================
+	
+	public void add(User user)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver"); -oracle
+		Connection c = dataSource.getConnection();
+		
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		PreparedStatement ps =c.prepareStatement("insert into dao(id,name,password) values(?,?,?)");
+		ps.setString(1, user.getId());
+		ps.setString(2, user.getName());
+		ps.setString(3, user.getPassword());
+		
+		ps.executeUpdate();
+		
+		ps.close();
+		c.close();
+	}
+	
+	public User get(String id)throws ClassNotFoundException, SQLException{
+		//Class.forName("oracle.jdbc.driver.OracleDriver");
+		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
+		Connection c = dataSource.getConnection();
+		PreparedStatement ps = c.prepareStatement("select * from dao where id = ?");
+		
+		ps.setString(1, id);
+		
+		ResultSet rs = ps.executeQuery();
+		rs.next();
+		User user = new User();
+		user.setId(rs.getString("id"));
+		user.setName(rs.getString("name"));
+		user.setPassword("password");
+		
+		rs.close();
+		ps.close();
+		c.close();
+		
+		return user;
+	}
+	
+	
+}
+
+
+</font>
+</pre>
+</div>
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[UserDaoTest]':'[UserDaoTest]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>UserDaoTest</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+package toby;
+
+import java.sql.SQLException;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
+
+public class UserDaoTest {
+	public static void main(String[]args)throws ClassNotFoundException, SQLException {
+	
+	
+		ApplicationContext context = new GenericXmlApplicationContext("/toby/applicationContext.xml");
+		UserDao dao = context.getBean("userDao",UserDao.class);
+		
+		
+		User user = new User();
+		user.setId("as221");
+		user.setName("JH");
+		user.setPassword("JH");
+		
+		dao.add(user);
+		
+		User user2 = dao.get(user.getId());
+		
+		System.out.println(user2.getName());
+		
+	}
+}
+
+</font>
+</pre>
+</div>
+
+
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[applicationContext.xml]':'[applicationContext.xml]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>applicationContext.xml</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+		<property name="driverClass" value ="com.mysql.jdbc.Driver"/>
+		<property name="url" value = "jdbc:mysql://localhost/toby"/>
+		<property name="username" value="root"/>
+		<property name="password" value="1111"/>
+	</bean>
+	
+	
+	
+	<bean id="userDao" class="toby.UserDao">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+</beans>
+</font>
+</pre>
+</div>
 
 </body>
 </html>

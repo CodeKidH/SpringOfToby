@@ -5,22 +5,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
+
 
 public class UserDao {
 	
-	private ConnectionMaker connectionMaker;
+	private DataSource dataSource;
 	
-	public void setConnectionMaker(ConnectionMaker connectionMaker){
-		this.connectionMaker = connectionMaker;
+	public void setDataSource(DataSource dataSource){
+		this.dataSource = dataSource;
 	}
 	
-	/*public UserDao(ConnectionMaker connectionMaker){
-		this.connectionMaker = connectionMaker;
-	}*/
 	
 	public void add(User user)throws ClassNotFoundException, SQLException{
 		//Class.forName("oracle.jdbc.driver.OracleDriver"); -oracle
-		Connection c = connectionMaker.makeConnection();
+		Connection c = dataSource.getConnection();
 		
 		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
 		PreparedStatement ps =c.prepareStatement("insert into dao(id,name,password) values(?,?,?)");
@@ -37,7 +36,7 @@ public class UserDao {
 	public User get(String id)throws ClassNotFoundException, SQLException{
 		//Class.forName("oracle.jdbc.driver.OracleDriver");
 		//Connection c = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:orcl1","HJEONG","1111");
-		Connection c = connectionMaker.makeConnection();
+		Connection c = dataSource.getConnection();
 		PreparedStatement ps = c.prepareStatement("select * from dao where id = ?");
 		
 		ps.setString(1, id);
