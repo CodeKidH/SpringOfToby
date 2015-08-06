@@ -1,9 +1,28 @@
-package toby;
+/*package toby;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
 public class DaoFactory {
+	
+	@Bean
 	public UserDao userDao(){
-		ConnectionMaker connectionMaker = new DConnectionMaker();
-		UserDao userDao =new UserDao(connectionMaker);
+		
+		UserDao userDao = new UserDao();
+		userDao.setConnectionMaker(connectionMaker());
 		return userDao;
+		
 	}
-}
+	
+	@Bean
+	public ConnectionMaker realConnectionMaker(){
+		return new DConnectionMaker();
+	}
+	
+	@Bean
+	public ConnectionMaker connectionMaker(){
+		return new CountingConnectionMaker(realConnectionMaker());
+	}
+	
+}*/
