@@ -46,13 +46,38 @@ public class UserDao {
 		User user = new User();
 		user.setId(rs.getString("id"));
 		user.setName(rs.getString("name"));
-		user.setPassword("password");
+		user.setPassword(rs.getString("password"));
 		
 		rs.close();
 		ps.close();
 		c.close();
 		
 		return user;
+	}
+	
+	public void deleteAll() throws SQLException{
+		Connection c = dataSource.getConnection();
+		
+		PreparedStatement ps = c.prepareStatement("delete from dao");
+		
+		ps.executeUpdate();
+		
+		ps.close();
+		c.close();
+	}
+	
+	public int getCount() throws SQLException{
+		Connection c = dataSource.getConnection();
+		
+		PreparedStatement ps = c.prepareStatement("select count(*) from dao");
+		ResultSet rs = ps.executeQuery();
+		rs.next();
+		int count = rs.getInt(1);
+		rs.close();
+		ps.close();
+		c.close();
+		
+		return count;
 	}
 	
 	

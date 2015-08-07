@@ -1,7 +1,10 @@
+<%@include file="include.jsp"%>
 <html>
 <body style="background:#041303">
-<h1 style="color:#FCF9F9">Chapter1</h1>
+<h1 style="color:#FCF9F9">Chapter1 - Object and DI</h1>
 <h2 style="color:#FCF9F9">1.STUDPID DAO</h2>
+
+
 <a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[User]':'[User]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>user</a><div style="DISPLAY: none">package toby;
 <pre style="color:#A7B32A">
 public class User {
