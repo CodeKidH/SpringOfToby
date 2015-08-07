@@ -5,45 +5,54 @@ import static org.junit.Assert.assertThat;
 
 import java.sql.SQLException;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 public class UserDaoTest {
+	
+	private UserDao dao;
+	private User user1;
+	private User user2;
+	private User user3;
+	
+	@Before
+	public void setUp(){
+		ApplicationContext context = new GenericXmlApplicationContext("toby/applicationContext.xml");
+		this.dao = context.getBean("userDao", UserDao.class);
+		
+		this.user3 = new User("x","x","x");
+		this.user1 = new User("v","v","v");
+		this.user2 = new User("z","z","z");
+	}
 	
 	@Test
 	public void addAndGet()throws SQLException, ClassNotFoundException{
 		
-		ApplicationContext context = new GenericXmlApplicationContext("toby/applicationContext.xml");
-		UserDao dao = context.getBean("userDao",UserDao.class);
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(),is(0));
 		
-		User user = new User();
-		user.setId("q");
-		user.setName("q");
-		user.setPassword("q");
+		dao.add(user1);
+		dao.add(user2);
 		
-		dao.add(user);
+		assertThat(dao.getCount(),is(2));
 		
-		User user2 = dao.get(user.getId());
+		User userget1 = dao.get(user1.getId());
+		assertThat(userget1.getName(), is(user1.getName()));
+		assertThat(userget1.getPassword(),is(user1.getPassword()));
 		
-		assertThat(user2.getName(), is(user.getName()));
-		assertThat(user2.getPassword(),is(user.getPassword()));
+		User userget2 = dao.get(user2.getId());
+		assertThat(user2.getName(), is(user2.getName()));
+		assertThat(user2.getPassword(),is(user2.getPassword()));
 		
 	}
 	
 	@Test
 	public void count()throws SQLException, ClassNotFoundException{
-		
-		ApplicationContext context = new GenericXmlApplicationContext("toby/applicationContext.xml");
-		UserDao dao = context.getBean("userDao",UserDao.class);
-		
-		User user3 = new User("x","x","x");
-		User user1 = new User("v","v","v");
-		User user2 = new User("z","z","z");
 		
 		dao.deleteAll();
 		assertThat(dao.getCount(),is(0));
@@ -58,6 +67,16 @@ public class UserDaoTest {
 
 		dao.add(user3);
 		assertThat(dao.getCount(),is(3));
+	}
+	
+	@Test(expected=EmptyResultDataAccessException.class)
+	public void getUserFailure() throws SQLException{
+		
+		
+		dao.deleteAll();
+		assertThat(dao.getCount(),is(0));
+		
+		dao.get("unknown");
 	}
 	
 	public static void main(String[]args)throws ClassNotFoundException, SQLException {
