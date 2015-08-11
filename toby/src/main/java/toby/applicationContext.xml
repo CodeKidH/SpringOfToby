@@ -16,4 +16,5 @@
 	<bean id="userDao" class="toby.UserDao">
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
+	
 </beans>
