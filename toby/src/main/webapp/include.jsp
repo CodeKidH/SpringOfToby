@@ -11,6 +11,7 @@
 	<a href = "chapter_1.jsp">chapter1</a>
 	<a href = "chapter_2.jsp">chapter2</a>
 	<a href = "chapter_3.jsp">chapter3</a>
+	<a href = "chapter_3_1.jsp">chapter3_1</a>
 </h3> 
 </body>
 </html>
