@@ -4689,7 +4689,7 @@ public class UserDao {
 		return user;
 	}
 	
-	public void deleteAll() throws SQLException{
+	public void deleteAll() {
 		this.jdbcTemplate.update("delete from dao");
 	}	
 	
@@ -4714,7 +4714,7 @@ public class UserDao {
 	|
 	|
 	v
-	public int getCount() throws SQLException{
+	public int getCount(){
 		return this.jdbcTemplate.queryForInt("select count(*) from dao");
 	}
 	===================================================================================
@@ -5216,12 +5216,12 @@ public class UserDao {
 	}
 	
 	
-	public void add(final User user)throws ClassNotFoundException, SQLException{
+	public void add(final User user){
 		
 		this.jdbcTemplate.update("insert into dao(id,name,password)value(?,?,?)",user.getId(),user.getName(),user.getPassword());
 	}
 	
-	public User get(String id)throws  SQLException{
+	public User get(String id){
 		return this.jdbcTemplate.queryForObject("select * from dao where id = ?",
 					new Object[] {id},
 					new RowMapper<User>(){
@@ -5237,14 +5237,14 @@ public class UserDao {
 				);
 	}
 	
-	public void deleteAll() throws SQLException{
+	public void deleteAll() {
 		this.jdbcTemplate.update("delete from dao");
 				
 	}	
 	
 	
 	
-	public int getCount() throws SQLException{
+	public int getCount() {
 		return this.jdbcTemplate.queryForInt("select count(*) from dao");
 	}
 	=====================================================================================
@@ -5526,24 +5526,24 @@ public class UserDao {
 	}
 	
 	
-	public void add(final User user)throws ClassNotFoundException, SQLException{
+	public void add(final User user){
 		
 		this.jdbcTemplate.update("insert into dao(id,name,password)value(?,?,?)",user.getId(),user.getName(),user.getPassword());
 	}
 	============================================================================
-	public User get(String id)throws  SQLException{
+	public User get(String id){
 		return this.jdbcTemplate.queryForObject("select * from dao where id = ?",
 					new Object[]{id}, this.userMapper);
 	}
 	============================================================================
-	public void deleteAll() throws SQLException{
+	public void deleteAll() {
 		this.jdbcTemplate.update("delete from dao");
 				
 	}	
 	
 	
 	
-	public int getCount() throws SQLException{
+	public int getCount() {
 		return this.jdbcTemplate.queryForInt("select count(*) from dao");
 	}
 	============================================================================
