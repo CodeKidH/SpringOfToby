@@ -21,6 +21,15 @@ public class User {
 		this.password = password;
 	}
 	
+	public void upgradeLevel(){
+		Level nextLevel = this.level.nextLevel();
+		if(nextLevel == null){
+			throw new IllegalStateException(this.level +"은 업그레이드 불가능");
+		}else{
+			this.level = nextLevel;
+		}
+	}
+	
 	public User(){}
 	
 	public Level getLevel() {
