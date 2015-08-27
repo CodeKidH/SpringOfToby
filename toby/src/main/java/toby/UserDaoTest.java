@@ -48,9 +48,9 @@ public class UserDaoTest {
 		
 		this.dao = this.context.getBean("userDao", UserDao.class);
 		
-		this.user3 = new User("x","x","x",Level.BASIC, 1, 0);
-		this.user1 = new User("v","v","v",Level.SILVER,55,10);
-		this.user2 = new User("z","z","z",Level.GOLD,100,40);
+		this.user3 = new User("x","x","x",Level.BASIC, 1, 0 ,"x");
+		this.user1 = new User("v","v","v",Level.SILVER,55,10,"v");
+		this.user2 = new User("z","z","z",Level.GOLD,100,40,"z");
 	}
 	
 	@Test
@@ -144,6 +144,7 @@ public class UserDaoTest {
 		user1.setLevel(Level.GOLD);
 		user1.setLogin(1000);
 		user1.setRecommend(999);
+		user1.setEmail("rr");
 		dao.update(user1);
 		
 		User user1update = dao.get(user1.getId());

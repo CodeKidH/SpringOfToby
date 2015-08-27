@@ -4,15 +4,26 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-
 public class UserService {
 	
 	UserDao userDao;
 	private DataSource dataSource;
+	private PlatformTransactionManager transactionManager;
+	private MailSender mailSender;
+	
+	public void setMailSender(MailSender mailSender){
+		this.mailSender = mailSender;
+	}
+	
+	public void setTransactionManager(PlatformTransactionManager transactionManager){
+		this.transactionManager = transactionManager;
+	}
 	
 	public void setDataSource(DataSource dataSource){
 		this.dataSource = dataSource;
@@ -23,13 +34,11 @@ public class UserService {
 		this.userDao = userDao;
 	}
 	
+	
 	public void upgradeLevels()throws Exception{
 		
-		PlatformTransactionManager transactionManager = 
-				new DataSourceTransactionManager(dataSource);
-		
 		TransactionStatus status =
-				transactionManager.getTransaction(new DefaultTransactionDefinition());
+				this.transactionManager.getTransaction(new DefaultTransactionDefinition());
 		
 		try{
 			List<User> users = userDao.getAll();
@@ -38,9 +47,9 @@ public class UserService {
 					upgradeLevel(user);
 				}
 			}
-			transactionManager.commit(status);
+			this.transactionManager.commit(status);
 		}catch (RuntimeException e){
-			transactionManager.rollback(status);
+			this.transactionManager.rollback(status);
 			throw e;
 		}
 		
@@ -50,6 +59,7 @@ public class UserService {
 		
 		user.upgradeLevel();
 		userDao.update(user);
+		sendUpgradeEMail(user);
 		
 	}
 	public static final int MIN_LOGCOUNT_FOR_SILVER = 50;
@@ -72,6 +82,19 @@ public class UserService {
 	public void add(User user){
 		if(user.getLevel() == null) user.setLevel(Level.BASIC);
 		userDao.add(user);
+	}
+	
+	private void sendUpgradeEMail(User user){
+		
+		
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setTo(user.getEmail());
+		mailMessage.setFrom("soul2ndlife@naver.com");
+		mailMessage.setSubject("upgrade");
+		mailMessage.setText("u r level"+user.getLevel().name());
+		
+		this.mailSender.send(mailMessage);
+		
 	}
 	
 }

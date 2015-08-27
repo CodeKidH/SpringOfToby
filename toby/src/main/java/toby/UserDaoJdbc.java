@@ -27,9 +27,9 @@ private JdbcTemplate jdbcTemplate;
 	
 	public void add(final User user){
 		
-		this.jdbcTemplate.update("insert into dao(id,name,password,level,login,recommend)value(?,?,?,?,?,?)"
+		this.jdbcTemplate.update("insert into dao(id,name,password,level,login,recommend,email)value(?,?,?,?,?,?,?)"
 				,user.getId(),user.getName(),user.getPassword(), user.getLevel().intValue(),
-				user.getLogin(),user.getRecommend());
+				user.getLogin(),user.getRecommend(),user.getEmail());
 	}
 	
 	public User get(String id){
@@ -55,8 +55,8 @@ private JdbcTemplate jdbcTemplate;
 	
 	public void update(User user){
 		this.jdbcTemplate.update("update dao set name = ?, password = ? ,level = ?,login = ?,"
-				+ "recommend = ? where id = ?", user.getName(), user.getPassword(),
-				user.getLevel().intValue(),user.getLogin(), user.getRecommend(),
+				+ "recommend = ?, email = ? where id = ? ", user.getName(), user.getPassword(),
+				user.getLevel().intValue(),user.getLogin(), user.getRecommend(),user.getEmail(),
 				user.getId());
 	}
 	
@@ -69,6 +69,7 @@ private JdbcTemplate jdbcTemplate;
 			user.setLevel(Level.valueOf(rs.getInt("level")));
 			user.setLogin(rs.getInt("login"));
 			user.setRecommend(rs.getInt("recommend"));
+			user.setEmail(rs.getString("email"));
 			return user;
 		}
 	};

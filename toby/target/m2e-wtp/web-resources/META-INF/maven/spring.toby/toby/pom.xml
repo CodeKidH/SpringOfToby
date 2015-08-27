@@ -13,7 +13,20 @@
 	<artifactId>junit</artifactId>
 	<version>4.12</version>
 </dependency>
+	
+<dependency>
+	<groupId>javax.mail</groupId>
+	<artifactId>mailapi</artifactId>
+	<version>1.4.3</version>
+</dependency>
 
+<dependency>
+	<groupId>org.glassfish</groupId>
+	<artifactId>javax.activation</artifactId>
+	<version>3.0-Prelude-Embedded-m2</version>
+</dependency>
+
+	
     <dependency>
 
 			<groupId>commons-io</groupId>
@@ -67,6 +80,12 @@
 		<artifactId>spring-beans</artifactId>
 		<version>4.0.1.RELEASE</version>
 	</dependency>
+	<dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-context-support</artifactId>
+	<version>4.1.6.RELEASE</version>
+</dependency>
+	
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-context</artifactId>

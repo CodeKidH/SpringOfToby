@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -30,6 +31,9 @@ public class UserServiceTest {
 	@Autowired DataSource dataSource;
 	
 	@Autowired
+	PlatformTransactionManager transactionManager;
+	
+	@Autowired
 	UserDao userDao;
 	
 	User user;
@@ -38,11 +42,11 @@ public class UserServiceTest {
 	
 	@Before
 	public void setUp(){
-		users = Arrays.asList(new User("aa","aa","p1",Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0),
-							  new User("bb","bb","p2",Level.BASIC,MIN_LOGCOUNT_FOR_SILVER,0),
-							  new User("cc","cc","p3",Level.SILVER,MIN_RECCOMEND_FOR_GOLD,29),
-							  new User("dd","dd","p4",Level.SILVER,MIN_RECCOMEND_FOR_GOLD,30),
-							  new User("ee","ee","p5",Level.GOLD,100,Integer.MAX_VALUE)
+		users = Arrays.asList(new User("aa","aa","p1",Level.BASIC, MIN_LOGCOUNT_FOR_SILVER-1, 0,"aa"),
+							  new User("bb","bb","p2",Level.BASIC,MIN_LOGCOUNT_FOR_SILVER,0,"bb"),
+							  new User("cc","cc","p3",Level.SILVER,MIN_RECCOMEND_FOR_GOLD,29,"cc"),
+							  new User("dd","dd","p4",Level.SILVER,MIN_RECCOMEND_FOR_GOLD,30,"dd"),
+							  new User("ee","ee","p5",Level.GOLD,100,Integer.MAX_VALUE,"ee")
 							  );
 	}
 	
@@ -112,6 +116,7 @@ public class UserServiceTest {
 	public void upgradeAllofNothing() throws Exception{
 		
 		UserService testUserService = new TestUserService(users.get(3).getId());
+		testUserService.setTransactionManager(transactionManager);
 		testUserService.setUserDao(this.userDao);
 		testUserService.setDataSource(this.dataSource);
 		
