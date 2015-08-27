@@ -2,24 +2,51 @@ package toby;
 
 import java.util.List;
 
+import javax.sql.DataSource;
+
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+
 public class UserService {
 	
 	UserDao userDao;
+	private DataSource dataSource;
+	
+	public void setDataSource(DataSource dataSource){
+		this.dataSource = dataSource;
+	}
+	
 	
 	public void setUserDao(UserDao userDao){
 		this.userDao = userDao;
 	}
 	
-	public void upgradeLevels(){
-		List<User> users = userDao.getAll();
-		for(User user : users){
-			if(canUpgradeLevel(user)){
-				upgradeLevel(user);
+	public void upgradeLevels()throws Exception{
+		
+		PlatformTransactionManager transactionManager = 
+				new DataSourceTransactionManager(dataSource);
+		
+		TransactionStatus status =
+				transactionManager.getTransaction(new DefaultTransactionDefinition());
+		
+		try{
+			List<User> users = userDao.getAll();
+			for(User user: users){
+				if(canUpgradeLevel(user)){
+					upgradeLevel(user);
+				}
 			}
+			transactionManager.commit(status);
+		}catch (RuntimeException e){
+			transactionManager.rollback(status);
+			throw e;
 		}
+		
 	}
 	
-	private void upgradeLevel(User user){
+	protected void upgradeLevel(User user){
 		
 		user.upgradeLevel();
 		userDao.update(user);
@@ -46,5 +73,5 @@ public class UserService {
 		if(user.getLevel() == null) user.setLevel(Level.BASIC);
 		userDao.add(user);
 	}
-
+	
 }
