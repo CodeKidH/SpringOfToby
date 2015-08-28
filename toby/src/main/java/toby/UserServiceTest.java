@@ -4,8 +4,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static toby.UserService.MIN_LOGCOUNT_FOR_SILVER;
-import static toby.UserService.MIN_RECCOMEND_FOR_GOLD;
+import static toby.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
+import static toby.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -24,6 +25,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/toby/applicationContext.xml")
 public class UserServiceTest {
+	
+	@Autowired
+	UserServiceImpl userServiceImpl;
 	
 	@Autowired
 	UserService userService;
@@ -115,16 +119,21 @@ public class UserServiceTest {
 	@Test
 	public void upgradeAllofNothing() throws Exception{
 		
-		UserService testUserService = new TestUserService(users.get(3).getId());
+		TestUserService testUserService = new TestUserService(users.get(3).getId());
 		testUserService.setTransactionManager(transactionManager);
 		testUserService.setUserDao(this.userDao);
 		testUserService.setDataSource(this.dataSource);
+			
+		UserServiceTx txUserService = new UserServiceTx();
+		txUserService.setTransactionManager(transactionManager);
+		txUserService.setUserService(testUserService);
+		
 		
 		userDao.deleteAll();
 		for(User user : users) userDao.add(user);
 		
 		try{
-			testUserService.upgradeLevels();
+			txUserService.upgradeLevels();
 			fail("TestUserServiceException expected");
 		}catch(TestUserServiceException e){
 			
@@ -147,7 +156,7 @@ public class UserServiceTest {
 		assertThat(userUpdate.getLevel(),is(expectedLevel));
 	}
 	
-	static class TestUserService extends UserService {
+	static class TestUserService extends UserServiceImpl {
 		
 		private String id;
 		

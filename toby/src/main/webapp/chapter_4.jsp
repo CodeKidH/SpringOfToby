@@ -8158,7 +8158,7 @@ public class UserServiceTest {
 		
 		userService.upgradeLevels();
 		
-
+		
 		checkLevelUpgraded(users.get(0), false);
 		checkLevelUpgraded(users.get(1),  true);
 		checkLevelUpgraded(users.get(2),  false);
