@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import static toby.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static toby.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -61,19 +61,26 @@ public class UserServiceTest {
 	
 	@Test
 	public void upgradeLevels() throws Exception{
-		userDao.deleteAll();
 		
-		for(User user : users)userDao.add(user);
+		UserServiceImpl userServiceImpl = new UserServiceImpl();
 		
-		userService.upgradeLevels();
+		MockUserDao mockUserDao = new MockUserDao(this.users);
+		userServiceImpl.setUserDao(mockUserDao);
 		
-
-		checkLevelUpgraded(users.get(0), false);
-		checkLevelUpgraded(users.get(1),  true);
-		checkLevelUpgraded(users.get(2),  false);
-		checkLevelUpgraded(users.get(3),  true);
-		checkLevelUpgraded(users.get(4),  false);
 		
+		userServiceImpl.upgradeLevels();
+		
+		List<User> updated = mockUserDao.getUpdated();
+		assertThat(updated.size(),is(2));
+		checkUserAndLevel(updated.get(0),"bb",Level.SILVER);
+		checkUserAndLevel(updated.get(1),"dd",Level.GOLD);
+		
+		
+	}
+	
+	private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel){
+		assertThat(updated.getId(), is(expectedId));
+		assertThat(updated.getLevel(), is(expectedLevel));
 	}
 	
 	@Test
@@ -98,7 +105,7 @@ public class UserServiceTest {
 	public void upgradeLevel(){
 		Level[] levels = Level.values();
 		for(Level level : levels){
-			if(level.nextLevel() == null) continue;
+			if(level.nextLevel() == null)continue;
 			user.setLevel(level);
 			user.upgradeLevel();
 			assertThat(user.getLevel(), is(level.nextLevel()));
@@ -106,7 +113,7 @@ public class UserServiceTest {
 		}
 	}
 	
-	@Test(expected=IllegalStateException.class)
+	@Test(expected=NullPointerException.class)
 	public void cannotUpgradeLevel(){
 		Level[] levels = Level.values();
 		for(Level level : levels){
@@ -154,6 +161,35 @@ public class UserServiceTest {
 	private void checkLevel(User user, Level expectedLevel){
 		User userUpdate = userDao.get(user.getId());
 		assertThat(userUpdate.getLevel(),is(expectedLevel));
+	}
+	
+	static class MockUserDao implements UserDao{
+		
+		private List<User> users;
+		private List<User> updated = new ArrayList();
+		
+		private MockUserDao(List<User> users){
+			this.users = users;
+		}
+		
+		public List<User> getUpdated(){
+			return this.updated;
+		}
+		
+		public List<User> getAll(){
+			return this.users;
+		}
+		
+		public void update(User user){
+			updated.add(user);
+		}
+		
+		public void add(User user){ throw new UnsupportedOperationException();}
+		public void deleteAll(){ throw new UnsupportedOperationException();}
+		public User get(String id){ throw new UnsupportedOperationException();}
+		public int getCount(){ throw new UnsupportedOperationException();}
+		
+		
 	}
 	
 	static class TestUserService extends UserServiceImpl {
