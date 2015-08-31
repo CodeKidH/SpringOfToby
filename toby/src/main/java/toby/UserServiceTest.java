@@ -4,6 +4,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static toby.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static toby.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
@@ -147,6 +152,26 @@ public class UserServiceTest {
 		}
 		
 		checkLevelUpgraded(users.get(1), false);
+	}
+	
+	@Test
+	public void mockUpgradeLevels()throws Exception{
+		
+		UserServiceImpl userServiceImpl = new UserServiceImpl();
+		
+		UserDao mockUserDao = mock(UserDao.class);
+		when(mockUserDao.getAll()).thenReturn(this.users);
+		userServiceImpl.setUserDao(mockUserDao);
+		
+		userServiceImpl.upgradeLevels();
+		
+		verify(mockUserDao, times(2)).update(any(User.class));
+		verify(mockUserDao, times(2)).update(any(User.class));
+		verify(mockUserDao).update(users.get(1));
+		assertThat(users.get(1).getLevel(),is(Level.SILVER));
+		verify(mockUserDao).update(users.get(3));
+		assertThat(users.get(3).getLevel(),is(Level.GOLD));
+		
 	}
 	
 	private void checkLevelUpgraded(User user, boolean upgraded){

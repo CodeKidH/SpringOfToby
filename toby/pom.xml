@@ -21,6 +21,14 @@
 </dependency>
 
 <dependency>
+	<groupId>org.mockito</groupId>
+	<artifactId>mockito-all</artifactId>
+	<version>1.10.19</version>
+</dependency>
+
+
+
+<dependency>
 	<groupId>org.glassfish</groupId>
 	<artifactId>javax.activation</artifactId>
 	<version>3.0-Prelude-Embedded-m2</version>
