@@ -24,7 +24,6 @@ private JdbcTemplate jdbcTemplate;
 		
 	}
 	
-	
 	public void add(final User user){
 		
 		this.jdbcTemplate.update("insert into dao(id,name,password,level,login,recommend,email)value(?,?,?,?,?,?,?)"
