@@ -7,7 +7,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class Client {
-
+	
 	
 	@Test
 	public void simpleProxy(){

@@ -3,6 +3,7 @@ package toby;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -11,7 +12,6 @@ import static org.mockito.Mockito.when;
 import static toby.UserServiceImpl.MIN_LOGCOUNT_FOR_SILVER;
 import static toby.UserServiceImpl.MIN_RECCOMEND_FOR_GOLD;
 
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +22,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -30,6 +32,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations="/toby/applicationContext.xml")
 public class UserServiceTest {
+	
+	@Autowired ApplicationContext context;
 	
 	@Autowired
 	UserServiceImpl userServiceImpl;
@@ -129,6 +133,7 @@ public class UserServiceTest {
 	}
 	
 	@Test
+	@DirtiesContext
 	public void upgradeAllofNothing() throws Exception{
 		
 		TestUserService testUserService = new TestUserService(users.get(3).getId());
@@ -136,9 +141,11 @@ public class UserServiceTest {
 		testUserService.setUserDao(this.userDao);
 		testUserService.setDataSource(this.dataSource);
 			
-		/*UserServiceTx txUserService = new UserServiceTx();
-		txUserService.setTransactionManager(transactionManager);
-		txUserService.setUserService(testUserService);*/
+		TxProxyFactoryBean txProxyFactoryBean = 
+				context.getBean("&userService",TxProxyFactoryBean.class);
+		
+		txProxyFactoryBean.setTarget(testUserService);
+		UserService txUserService = (UserService)txProxyFactoryBean.getObject();
 		
 		TransactionHandler txHandler = new TransactionHandler();
 		txHandler.setTarget(testUserService);
@@ -149,14 +156,13 @@ public class UserServiceTest {
 		userDao.deleteAll();
 		for(User user : users) userDao.add(user);
 		
-		UserService txUserService =(UserService)Proxy.newProxyInstance(getClass().getClassLoader(), new Class[]{UserService.class}, txHandler);
-		
-		/*try{
+		try{
 			txUserService.upgradeLevels();
 			fail("TestUserServiceException expected");
 		}catch(TestUserServiceException e){
 			
-		}*/
+		}
+		
 		
 		checkLevelUpgraded(users.get(1), false);
 	}

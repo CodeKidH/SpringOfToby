@@ -7,7 +7,7 @@
 <title>Insert title here</title>
 </head>
 <body>
-<h3 style="color:#52A34C; style=float:left; width:30%">
+<h3 style="color:#52A34C; style=float:left; width:100%">
 	<a href = "chapter_1.jsp">chapter1</a>
 	<a href = "chapter_2.jsp">chapter2</a>
 	<a href = "chapter_3.jsp">chapter3</a>

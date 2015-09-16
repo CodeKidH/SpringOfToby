@@ -11,16 +11,16 @@
 		<property name="password" value="1111"/>
 	</bean>
 	
-	<bean id ="userService" class="toby.UserServiceTx">
+	<bean id ="userService" class="toby.TxProxyFactoryBean">
+		<property name="target" ref="userServiceImpl"/>
 		<property name="transactionManager" ref="transactionManager"/>
-		<property name="userService" ref="userServiceImpl"/>
+		<property name="pattern" value="upgradeLevels"/>
+		<property name="serviceInterface" value="toby.UserService"/>
 	</bean>
 	
 	<bean id="userServiceImpl" class="toby.UserServiceImpl">
 			<property name="userDao" ref="userDao"/>
 	</bean>
-	
-	
 	
 	
 	<bean id = "transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

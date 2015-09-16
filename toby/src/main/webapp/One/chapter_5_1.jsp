@@ -267,6 +267,124 @@ public class UppercaseHandler implements InvocationHandler{
 </pre>
 </div>
 
+<h2 style="color:#FCF9F9">4.Factory Bean for Dynamic Proxy</h2>
+<h3 style="color:#FCF9F9">Dynamic proxy object do not apply to Spring bean so We use Factory bean</h3>
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[MessageFactoryBean]':'[MessageFactoryBean]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>MessageFactoryBean</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+package test;
+it is judged
+import org.springframework.beans.factory.FactoryBean;
+
+public class MessageFactoryBean implements FactoryBean<Message>{
+	
+	String text;
+	
+	public void setText(String text){
+		this.text = text;
+	}
+	
+	public Class(? extends Message)getObjectType(){ ----->> it notify us object type
+		return Message.class;
+	}
+	
+	public boolean isSingleton(){  ----->> it is judged whether Singleton or not
+		return false;
+	}
+
+	public Message getObject() throws Exception { ----->> create bean object and return
+		return Message.newMessage(this.text);
+	}
+}
+
+
+</font>
+</pre>
+</div>
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[Message]':'[Message]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>Message</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+package test;
+
+public class Message {
+	
+	String text;
+	
+	private Message(String text){
+		this.text = text;
+	}
+	
+	public String getText(){
+		return text;
+	}
+	
+	public static Message newMessage(String text){
+		return new Message(text);
+	}
+	
+}
+
+
+</font>
+</pre>
+</div>
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[FactoryBeanTest]':'[FactoryBeanTest]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>FactoryBeanTest</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+package test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration
+public class FactoryBeanTest {
+	
+	@Autowired
+	ApplicationContext context;
+	
+	@Test
+	public void getMessageFromFactoryBean(){
+		Object message = context.getBean("message");
+		assertThat((Message)message, is(Message.class));
+		assertThat(((Message)message).getText(),is("Factory Bean"));
+		
+	}
+}
+
+
+</font>
+</pre>
+</div>
+
+<a class="more" onclick="this.innerHTML=(this.nextSibling.style.display=='none')?'[FactoryBeanTest-context.xml]':'[FactoryBeanTest-context.xml]';this.nextSibling.style.display=(this.nextSibling.style.display=='none')?'block':'none';" href="javascript:void(0);" onfocus='blur()'>FactoryBeanTest-context.xml</a><div style="DISPLAY: none">
+<pre style="color:#A7B32A">
+<font size="4">
+(?xml version="1.0" encoding="UTF-8"?)
+(beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd")
+	
+	
+	(bean id="message" class="test.MessageFactoryBean")
+		(property name="text" value="Factory Bean"/)
+	(/bean)
+	
+(/beans)
+
+</font>
+</pre>
+</div>
+
 </body>
 </html>
 
