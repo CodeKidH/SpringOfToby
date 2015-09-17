@@ -1,17 +1,27 @@
 package chapter2;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(locations = "/chapter2/applicationContext.xml")
 public class Main {
+	
+	//@Autowired
+	//ApplicationContext applicationContext;
 	
 	@Test
 	public void registerBeanWithDependency(){
@@ -59,6 +69,21 @@ public class Main {
 		
 	}
 	
+	@Test
+	public void genericApplicationContext(){
+		GenericApplicationContext ac = new GenericApplicationContext();
+		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(ac);
+		reader.loadBeanDefinitions("applicationContext.xml");
+		//XmlBeanDefinitionReader는 기본적으로 클래스 패스로 정의된 리소스로부터 파일을 읽는다
+		
+		ac.refresh();
+		//모든 메타정보가 등록이 완료됐으니 애플리케이션 컨테이너를 초기화하라는 명령이다.
+		
+		Hello hello = ac.getBean("hello",Hello.class);
+		hello.print();
+		
+		assertThat(ac.getBean("printer").toString(), is("HelloSpring"));
+	}
 	
 	
 	public static void main(String[]args){
