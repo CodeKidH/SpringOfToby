@@ -1,20 +1,21 @@
 package chapter2;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 //@RunWith(SpringJUnit4ClassRunner.class)
 //@ContextConfiguration(locations = "/chapter2/applicationContext.xml")
@@ -73,7 +74,7 @@ public class Main {
 	public void genericApplicationContext(){
 		GenericApplicationContext ac = new GenericApplicationContext();
 		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(ac);
-		reader.loadBeanDefinitions("applicationContext.xml");
+		reader.loadBeanDefinitions("chapter2/applicationContext.xml");
 		//XmlBeanDefinitionReader는 기본적으로 클래스 패스로 정의된 리소스로부터 파일을 읽는다
 		
 		ac.refresh();
@@ -85,6 +86,52 @@ public class Main {
 		assertThat(ac.getBean("printer").toString(), is("HelloSpring"));
 	}
 	
+	@Test
+	public void GenericXmlApplicationContext(){
+		GenericApplicationContext ac =new GenericXmlApplicationContext(
+				"chapter2/applicationContext.xml");
+		
+		Hello hello = ac.getBean("hello",Hello.class);
+		
+		hello.print();
+		
+		assertThat(ac.getBean("printer").toString(), is("HelloSpring"));
+	}
+	
+	@Test
+	public void treeOfContext(){
+		String basePath = StringUtils.cleanPath(ClassUtils.classPackageAsResourcePath(getClass()))+"/";
+		//현재 클래스의 패키지 정보를 클래스 패스형식으로 만들어서 미리저장
+		
+		ApplicationContext parent= new GenericXmlApplicationContext(basePath+"parentContext.xml");
+		
+		GenericApplicationContext child = new GenericApplicationContext(parent);
+		
+		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(child);
+		reader.loadBeanDefinitions(basePath + "childContext.xml");
+		child.refresh(); // reader로 읽었으면 꼭 초기화 해야함
+		
+		Printer printer = child.getBean("printer",Printer.class); //childContext
+		Printer printer1 = parent.getBean("printer",Printer.class);
+		assertThat(printer, is(notNullValue()));
+		//----------------------------------------------------------------------
+		
+		Hello hello = child.getBean("hello",Hello.class);
+		assertThat(hello, is(notNullValue()));
+		
+		hello.print();
+		assertThat(printer.toString(), is("Hellochild"));
+		//-----------------------------------------------------------------------
+		
+		Hello hello1 = parent.getBean("hello",Hello.class);
+		assertThat(hello1, is(notNullValue()));
+		
+		hello1.print();
+		assertThat(printer1.toString(),is("HelloParent"));
+		
+		
+		
+	}
 	
 	public static void main(String[]args){
 		

@@ -1,7 +1,31 @@
-<!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd" >
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
 
-<web-app>
   <display-name>Archetype Created Web Application</display-name>
+  
+  <listener>
+  	<listener-class>org.springframework.web.context.ContextLoaderListener
+  	</listener-class>
+  </listener>
+  <!--웹 어플리케이션이 시작될때 루트 애플리케이션 컨텍스트를 만들어 초기화, 웹 애플리케이션이 종료될 때 컨텍스트를 함께 종료하는 리스너  -->
+  <!--디폴트 값 루트 어플리케이션위치 WEB-INF/applicationContext.xml-->
+  <!--ContextLoaderListener가 자동생성하는 컨텍스트의 클래스는 XmlWebApplicationContext이다-->
+  
+  <context-param>  
+	<param-name>contextClass</param-name>  
+	<param-value> <!--다른 애플리케이션컨텍스트 구현 클래스로 변경하고 싶으면 contextClass파라미터를 이용-->
+		org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+	</param-value> 
+	 
+  </context-param>  
+  
+  <servlet><!--서블릿이 초기화 될때 자신만의 컨텍스트를 생성하고 초기화, 동시에 웹
+  애플리케이션 레벨에 등록된 루트 애플리케이션 컨텍스트를 찾아서 이를 자신의 부모 컨텍스트로 이용-->
+  	<servlet-name>spring</servlet-name>
+  	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  	<load-on-startup>1</load-on-startup>
+  </servlet>
+
 </web-app>
