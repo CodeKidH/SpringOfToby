@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
@@ -40,6 +41,9 @@ public class UserServiceTest {
 	
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	UserService testUserService;
 	
 	@Autowired DataSource dataSource;
 	
@@ -133,38 +137,19 @@ public class UserServiceTest {
 	}
 	
 	@Test
-	@DirtiesContext
 	public void upgradeAllofNothing() throws Exception{
 		
-		TestUserService testUserService = new TestUserService(users.get(3).getId());
-		testUserService.setTransactionManager(transactionManager);
-		testUserService.setUserDao(this.userDao);
-		testUserService.setDataSource(this.dataSource);
-			
-		TxProxyFactoryBean txProxyFactoryBean = 
-				context.getBean("&userService",TxProxyFactoryBean.class);
-		
-		txProxyFactoryBean.setTarget(testUserService);
-		UserService txUserService = (UserService)txProxyFactoryBean.getObject();
-		
-		TransactionHandler txHandler = new TransactionHandler();
-		txHandler.setTarget(testUserService);
-		txHandler.setTransactionManager(transactionManager);
-		txHandler.setPattern("upgradeLevels");
-		
-		
 		userDao.deleteAll();
-		for(User user : users) userDao.add(user);
+		
+		for(User user: users)userDao.add(user);
 		
 		try{
-			txUserService.upgradeLevels();
+			this.testUserService.upgradeLevels();
 			fail("TestUserServiceException expected");
 		}catch(TestUserServiceException e){
 			
 		}
-		
-		
-		checkLevelUpgraded(users.get(1), false);
+		checkLevelUpgraded(users.get(1),false);
 	}
 	
 	@Test
@@ -230,13 +215,9 @@ public class UserServiceTest {
 		
 	}
 	
-	static class TestUserService extends UserServiceImpl {
+	static class TestUserServiceImpl extends UserServiceImpl {
 		
-		private String id;
-		
-		private TestUserService(String id){
-			this.id = id;
-		}
+		private String id ="p3";
 		
 		protected void upgradeLevel(User user){
 			if(user.getId().equals(this.id))throw new TestUserServiceException();

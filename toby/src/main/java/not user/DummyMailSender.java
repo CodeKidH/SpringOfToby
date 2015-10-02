@@ -1,4 +1,4 @@
-package toby;
+/*package toby;
 
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
@@ -14,3 +14,4 @@ public class DummyMailSender implements MailSender{
 		
 	}
 }
+*/

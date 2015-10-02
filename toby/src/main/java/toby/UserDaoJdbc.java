@@ -3,6 +3,7 @@ package toby;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -12,8 +13,14 @@ import org.springframework.jdbc.core.RowMapper;
 
 public class UserDaoJdbc implements UserDao{
 
-private JdbcTemplate jdbcTemplate;
+	private JdbcTemplate jdbcTemplate;
 	
+	private Map<String, String> sqlMap;
+	
+	public void setSqlMap(Map<String, String>sqlMap){
+		this.sqlMap = sqlMap;
+	}
+
 	
 	@Autowired
 	DataSource dataSource;
@@ -26,35 +33,35 @@ private JdbcTemplate jdbcTemplate;
 	
 	public void add(final User user){
 		
-		this.jdbcTemplate.update("insert into dao(id,name,password,level,login,recommend,email)value(?,?,?,?,?,?,?)"
+		this.jdbcTemplate.update(
+				this.sqlMap.get("add")
 				,user.getId(),user.getName(),user.getPassword(), user.getLevel().intValue(),
 				user.getLogin(),user.getRecommend(),user.getEmail());
 	}
 	
 	public User get(String id){
-		return this.jdbcTemplate.queryForObject("select * from dao where id = ?",
+		return this.jdbcTemplate.queryForObject(this.sqlMap.get("get"),
 					new Object[]{id}, this.userMapper);
 	}
 	
 	public void deleteAll(){
-		this.jdbcTemplate.update("delete from dao");
+		this.jdbcTemplate.update(this.sqlMap.get("deleteAll"));
 				
 	}	
 	
 	public int getCount(){
-		return this.jdbcTemplate.queryForInt("select count(*) from dao");
+		return this.jdbcTemplate.queryForInt(this.sqlMap.get("getCount"));
 	}
 	
 	public List<User> getAll(){
-		return this.jdbcTemplate.query("select * from dao order by id", 
+		return this.jdbcTemplate.query(this.sqlMap.get("getAll"), 
 					this.userMapper
 				);
 				
 	}
 	
 	public void update(User user){
-		this.jdbcTemplate.update("update dao set name = ?, password = ? ,level = ?,login = ?,"
-				+ "recommend = ?, email = ? where id = ? ", user.getName(), user.getPassword(),
+		this.jdbcTemplate.update(this.sqlMap.get("update"), user.getName(), user.getPassword(),
 				user.getLevel().intValue(),user.getLogin(), user.getRecommend(),user.getEmail(),
 				user.getId());
 	}

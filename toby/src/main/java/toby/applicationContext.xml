@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
-			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/aop
+			http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+			
+
 	
 	<bean id="dataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
 		<property name="driverClass" value ="com.mysql.jdbc.Driver"/>
@@ -11,11 +16,8 @@
 		<property name="password" value="1111"/>
 	</bean>
 	
-	<bean id ="userService" class="toby.TxProxyFactoryBean">
-		<property name="target" ref="userServiceImpl"/>
-		<property name="transactionManager" ref="transactionManager"/>
-		<property name="pattern" value="upgradeLevels"/>
-		<property name="serviceInterface" value="toby.UserService"/>
+	<bean id ="userService" class="toby.UserServiceImpl">
+		<property name="userDao" ref="userDao"/>
 	</bean>
 	
 	<bean id="userServiceImpl" class="toby.UserServiceImpl">
@@ -29,7 +31,20 @@
 	
 	<bean id="userDao" class="toby.UserDaoJdbc">
 		<property name="dataSource" ref="dataSource"/>
+		<property name="sqlMap">
+			<map>
+				<entry key="add" value="insert into dao(id,name,password,level,login,recommend,email)value(?,?,?,?,?,?,?)"/>
+				<entry key="get" value="select * from dao where id = ?"/>
+				<entry key="getAll" value="select * from dao order by id"/>
+				<entry key="deleteAll" value="delete from dao"/>
+				<entry key="getCount" value="select count(*) from dao"/>
+				<entry key="update" value="update dao set name = ?, password = ? ,level = ?,login = ?,recommend = ?, email = ? where id = ?"/>
+			</map>
+		</property> 
+		
+		
 	</bean>
+	
 	
 
 	

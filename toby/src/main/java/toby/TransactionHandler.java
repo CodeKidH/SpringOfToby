@@ -10,9 +10,9 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 public class TransactionHandler implements InvocationHandler{
 	
-	private Object target; //ºÎ°¡±â´ÉÀ» Á¦°øÇÒ Å¸±ê ¿ÀºêÁ§Æ®
-	private PlatformTransactionManager transactionManager; //Æ®·£Àè¼Ç ±â´ÉÀ» Á¦°øÇÏ´Â µ¥ ÇÊ¿äÇÑ Æ®·£Àè¼Ç ¸Å´ÏÀú
-	private String pattern; //Æ®·£Àè¼ÇÀ» Àû¿ëÇÒ ¸Þ¼Òµå ÀÌ¸§ ÆÐÅÏ
+	private Object target; //ï¿½Î°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Å¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
+	private PlatformTransactionManager transactionManager; //Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å´ï¿½ï¿½ï¿½
+	private String pattern; //Æ®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Þ¼Òµï¿½ ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	
 	public void setTarget(Object target){
 		this.target = target;
